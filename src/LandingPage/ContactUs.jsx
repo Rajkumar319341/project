@@ -1,6 +1,9 @@
 import React from 'react';
 import { Grid, Card, CardContent, CardMedia, Typography, makeStyles } from '@material-ui/core';
 import Rajkumar from './Images/Rajkumar.jpeg'
+import Shashank from './Images/shashnk.jpeg'
+import hanmant from './Images/hanmant.jpg'
+import vishwanath from './Images/vishwanath.jpeg'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,7 +59,7 @@ const ContactUs = () => {
           <Card className={classes.card}>
             <CardMedia
               className={classes.media}
-              image="https://via.placeholder.com/300"
+              image={vishwanath}
               title="Person 2"
             />
             <CardContent>
@@ -76,7 +79,7 @@ const ContactUs = () => {
           <Card className={classes.card}>
             <CardMedia
               className={classes.media}
-              image="https://via.placeholder.com/300"
+              image={hanmant}
               title="Person 3"
             />
             <CardContent>
@@ -96,7 +99,7 @@ const ContactUs = () => {
           <Card className={classes.card}>
             <CardMedia
               className={classes.media}
-              image="https://via.placeholder.com/300"
+              image={Shashank}
               title="Person 4"
             />
             <CardContent>

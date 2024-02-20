@@ -1,0 +1,50 @@
+.main-container{
+    background: linear-gradient(135deg, rgb(0, 7, 61), rgb(33, 150, 243));
+    width: 220px;
+}
+.link_text {
+    color: white;
+    height: 50px;
+  }
+  .icon {
+    color: white;
+    width: 20%;
+  }
+  .logo{
+    color: white;
+    justify-content: center;
+    align-items: center;
+    margin-left: 20px;
+  }
+  .top_section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+  }
+  
+  .bars,
+  .search {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search .search_icon {
+    margin-left: 11px; 
+    color: white;
+  }
+  .link {
+    display: flex;
+    align-items: center;
+  }
+  
+  .link .icon {
+    margin-right: 5px; 
+    margin-left: 8px;
+    height: 50px;
+  }
+  
+  
+  
+  
+  

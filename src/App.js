@@ -1,4 +1,4 @@
-// App.jsx
+// App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Signup from "./Pages/Signup";
@@ -14,66 +14,32 @@ import Investments from "./Pages/sidebar/Investments/Investments";
 import Insurance from "./Pages/sidebar/Insurance/Insurance";
 import LoanForm from "./Pages/sidebar/Loan/Loan";
 import Tutorials from "./Pages/sidebar/Tutorials/Tutorials";
+import './App.css'
+import Layout from "./components/Layout";
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Landingpage />} />
-        <Route path="/howitworks" element={<Howitworks />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/contact-us" element={<ContactUs />} />
-        <Route
-          path="/account-info"
-          element={
-            <SideBar>
-              <AccountInfo />
-            </SideBar>
-          }
-        />
-        <Route path="/register" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/income"
-          element={
-            <SideBar>
-              <Income />
-            </SideBar>
-          }
-        />
-        <Route
-          path="/investments"
-          element={
-            <SideBar>
-              <Investments />
-            </SideBar>
-          }
-        />
-        <Route
-          path="/insurance"
-          element={
-            <SideBar>
-              <Insurance />
-            </SideBar>
-          }
-        />
-        <Route
-          path="/loan"
-          element={
-            <SideBar>
-              <LoanForm />
-            </SideBar>
-          }
-        />
-        <Route
-          path="/tutorials"
-          element={
-            <SideBar>
-              <Tutorials />
-            </SideBar>
-          }
-        />
-      </Routes>
+      <div className="app-container">
+        <SideBar />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Landingpage />} />
+            <Route path="/howitworks" element={<Howitworks />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/account-info" element={<AccountInfo />} />
+            <Route path="/register" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/income" element={<Income />} />
+            <Route path="/investments" element={<Investments />} />
+            <Route path="/insurance" element={<Insurance />} />
+            <Route path="/loan" element={<LoanForm />} />
+            <Route path="/tutorials" element={<Tutorials />} />
+            
+          </Routes>
+        </div>
+      </div>
     </Router>
   );
 }

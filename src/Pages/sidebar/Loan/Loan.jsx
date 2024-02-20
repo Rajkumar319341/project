@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 import './Loan.css'
 
-const LoanForm = () => {
+const LoanPage = () => {
   const [loanType, setLoanType] = useState("");
   const [vendor, setVendor] = useState("");
   const [loanAmount, setLoanAmount] = useState("");
@@ -13,47 +13,87 @@ const LoanForm = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [pendingAmount, setPendingAmount] = useState("");
+  const [loanData, setLoanData] = useState([]);
+  const userId = localStorage.getItem("userId");
+
+  useEffect(() => {
+    const fetchLoanData = async () => {
+      try {
+        const token = btoa("c4eadmin:admin@1234");
+        const response = await axios.get(`https://money-xg9v.onrender.com/api/v1/loan/user/${userId}`, {
+          headers: {
+            Authorization: `Basic ${token}`,
+          },
+        });
+        setLoanData(response.data.loan);
+      } catch (error) {
+        console.error("API Error:", error);
+      }
+    };
+
+    if (userId) {
+      fetchLoanData();
+    }
+  }, [userId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const recordId = uuid();
-    const userId = localStorage.getItem("userId");
-    const loanDetails = [
-      {
-        recordId,
-        loanType,
-        vendor,
-        loanAmount,
-        emi,
-        tenure,
-        roi,
-        startDate,
-        endDate,
-        pendingAmount,
-      },
-    ];
     try {
+      const token = btoa("c4eadmin:admin@1234");
       const response = await axios.post(
         "https://money-xg9v.onrender.com/api/v1/loan",
-        { userId, loanDetails }
+        {
+          userId,
+          loanDetails: [
+            {
+              recordId,
+              loanType,
+              vendor,
+              loanAmount,
+              emi,
+              tenure,
+              roi,
+              startDate,
+              endDate,
+              pendingAmount,
+            },
+          ],
+        },
+        {
+          headers: {
+            Authorization: `Basic ${token}`,
+          },
+        }
       );
       console.log("Response:", response);
       if (response.status === 201) {
         console.log("Data saved Successfully");
+        setLoanData([...loanData, response.data]); // Add newly added loan data to the state
       } else {
         console.log("Failed to save data:", response.data.message);
       }
     } catch (error) {
       console.error("API Error:", error);
     }
+
+    // Reset form fields after submission
+    setLoanType("");
+    setVendor("");
+    setLoanAmount("");
+    setEmi("");
+    setTenure("");
+    setRoi("");
+    setStartDate("");
+    setEndDate("");
+    setPendingAmount("");
   };
 
   return (
-    
     <div className="page-container4">
       <div className="container4">
         <div className="form-container4">
-          <h2> Your Loan Details</h2>
+          <h2>Your Loan Details</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-group4">
               <div className="form-column">
@@ -89,18 +129,6 @@ const LoanForm = () => {
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
-                <div className="form-column">
-                  <button
-                    type="submit"
-                    style={{
-                      marginTop: "30px",
-                      marginLeft: "30px",
-                      width: "50%",
-                    }}
-                  >
-                    Save
-                  </button>
-                </div>
               </div>
               <div className="form-column">
                 <label>Vendor</label>
@@ -145,11 +173,45 @@ const LoanForm = () => {
                 />
               </div>
             </div>
+            <button  type="submit"   style={{
+                      marginLeft: "30px",
+                      width: "30%",
+                    }}>Save</button>
           </form>
+        </div>
+
+        <div className="table-container4">
+          <h2>Loan Table</h2>
+          <table className="table4">
+            <thead>
+              <tr>
+                <th>Loan Type</th>
+                <th>Loan Amount</th>
+                <th>EMI</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Pending Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loanData && loanData.map((loan) => (
+                loan.loanDetails && loan.loanDetails.map((detail) => (
+                  <tr key={detail.recordId}>
+                    <td>{detail.loanType}</td>
+                    <td>{detail.loanAmount}</td>
+                    <td>{detail.emi}</td>
+                    <td>{detail.startDate ? detail.startDate.substring(0, 10) : ""}</td>
+                    <td>{detail.endDate ? detail.endDate.substring(0, 10) : ""}</td>
+                    <td>{detail.pendingAmount}</td>
+                  </tr>
+                ))
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
 };
 
-export default LoanForm;
+export default LoanPage;

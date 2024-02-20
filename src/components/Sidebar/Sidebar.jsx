@@ -1,3 +1,5 @@
+// Sidebar.jsx
+import React from "react";
 import { NavLink } from "react-router-dom";
 import { FaBars, FaHome, FaLock, FaMoneyBill, FaUser } from "react-icons/fa";
 import { HiCreditCard } from "react-icons/hi";
@@ -9,10 +11,10 @@ import { BsFillBookmarksFill } from "react-icons/bs";
 import { AiTwotoneFileExclamation } from "react-icons/ai";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LiveTvIcon from "@mui/icons-material/LiveTv";
-
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import SidebarMenu from "./SidebarMenu";
+import './SideBar.css';
 
 const routes = [
   {
@@ -50,24 +52,24 @@ const routes = [
     name: "Loans",
     icon: <BsFillBookmarksFill />,
   },
-  {
-    path: "/settings",
-    name: "Settings",
-    icon: <BiCog />,
-    exact: true,
-    subRoutes: [
-      {
-        path: "/settings/profile",
-        name: "ProfilePage",
-        icon: <FaUser />,
-      },
-      {
-        path: "/settings/billing",
-        name: "Toggle",
-        icon: <FaMoneyBill />,
-      },
-    ],
-  },
+//   {
+//     path: "/settings",
+//     name: "Settings",
+//     icon: <BiCog />,
+//     exact: true,
+//     subRoutes: [
+//       {
+//         path: "/settings/profile",
+//         name: "ProfilePage",
+//         icon: <FaUser />,
+//       },
+//       {
+//         path: "/settings/billing",
+//         name: "Toggle",
+//         icon: <FaMoneyBill />,
+//       },
+//     ],
+//   },
   {
     path: "/tutorials",
     name: "Tutorials",
@@ -123,10 +125,9 @@ const SideBar = ({ children }) => {
       <div className="main-container">
         <motion.div className="sidebar">
           <div className="top_section">
-            
             <AnimatePresence>
               {isOpen && (
-                <motion.h1
+                <motion.h2
                   variants={showAnimation}
                   initial="hidden"
                   animate="show"
@@ -134,19 +135,15 @@ const SideBar = ({ children }) => {
                   className="logo"
                 >
                   Money Gaffer
-                </motion.h1>
+                </motion.h2>
               )}
             </AnimatePresence>
-            <div className="bars">
-              <FaBars onClick={toggle} />
-            </div>
           </div>
 
           <div className="search">
             <div className="search_icon">
               <BiSearch />
             </div>
-
             <AnimatePresence>
               {isOpen && (
                 <motion.input
@@ -182,19 +179,7 @@ const SideBar = ({ children }) => {
                   activeClassName="active"
                 >
                   <div className="icon">{route.icon}</div>
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        variants={showAnimation}
-                        initial="hidden"
-                        animate="show"
-                        exit="hidden"
-                        className="link_text"
-                      >
-                        {route.name}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  <div className="link_text">{route.name}</div>
                 </NavLink>
               );
             })}

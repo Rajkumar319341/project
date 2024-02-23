@@ -33,7 +33,7 @@ const routes = [
     icon: <HiCreditCard />,
   },
   {
-    path: "/messages",
+    path: "/expense",
     name: "Expenses",
     icon: <MdMessage />,
   },

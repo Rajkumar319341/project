@@ -11,6 +11,7 @@ const Income = () => {
   const [incomeData, setIncomeData] = useState([]);
   const userId = localStorage.getItem("userId");
 
+  console.log("userID:", userId);
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -68,9 +69,9 @@ const Income = () => {
           },
         }
       );
-      if (response.status===200) {
+      if (response.status === 200) {
         setIncomeData(response.data.income);
-        console.log("data retreieved Successfully")
+        console.log("data retreieved Successfully");
       } else {
         console.log("Failed to fetch income data");
       }
@@ -78,7 +79,7 @@ const Income = () => {
       console.error("API Error:", error);
     }
   };
-  
+
   useEffect(() => {
     if (userId) {
       fetchIncomeData();
@@ -141,56 +142,76 @@ const Income = () => {
         </div>
         <br />
         <div className={IncomeCSS.form_group}>
-          <button
-            type="submit"
-            className={IncomeCSS.btn_IncomeSaveChanges}
-          >
+          <button type="submit" className={IncomeCSS.btn_IncomeSaveChanges}>
             Save
           </button>
         </div>
       </form>
 
       <div className={IncomeCSS.page_container1}>
-  <div className={IncomeCSS.container1}>
-    <div className={IncomeCSS.form_container1}>
-    <h2> Income Table</h2>
+        <div className={IncomeCSS.container1}>
+          <div className={IncomeCSS.form_container1}>
+            <h2 className={IncomeCSS.h2}>
+              <span> Income Table</span>
+            </h2>
+            <div className={IncomeCSS.tools}>
+              <label className={IncomeCSS.label2} htmlFor="file"></label>
+              <button className={IncomeCSS.importbutton}>
+                import PDF Here{" "}
+                <span
+                  role="img"
+                  aria-label="sticker"
+                  className={IncomeCSS.sticker}
+                >
+                  👉 {/* Use any desired icon or sticker */}
+                </span>
+              </button>
+              <input
+                type="file"
+                tabIndex={"Upload File"}
+                id="file"
+                accept=".xlsm"
+                className={IncomeCSS.import}
+              />
+              <button className={IncomeCSS.pdfbutton}>Export to PDF</button>
+            </div>
 
-      <table className={IncomeCSS.table}>
-        <thead>
-          <tr>
-            <th>Income Title</th>
-            <th>Bank Name</th>
-            <th>Branch</th>
-            <th>Amount</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {incomeData && incomeData.length > 0 && incomeData[0].accountDetails ? (
-            incomeData[0].accountDetails.map((income, index) => (
-              <tr key={index}>
-               
-               <td>{income.description}</td>
-                <td>{income.accountId}</td>
-                <td>{income.recordId}</td>
-                <td>{income.amount}</td>
-                <td>{income.dot.substring(0,10)}</td>
-               
-               
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5">No income data available.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            <table className={IncomeCSS.table}>
+              <thead>
+                <tr>
+                  <th className={IncomeCSS.tr}>Income Title</th>
+                  <th className={IncomeCSS.tr}>Bank Name</th>
+                  <th className={IncomeCSS.tr}>Branch</th>
+                  <th className={IncomeCSS.tr}>Amount</th>
+                  <th className={IncomeCSS.tr}>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {incomeData &&
+                incomeData.length > 0 &&
+                incomeData[0].accountDetails ? (
+                  incomeData[0].accountDetails.map((income, index) => (
+                    <tr key={index}>
+                      <td className={IncomeCSS.td}>{income.description}</td>
+                      <td className={IncomeCSS.td}>{income.accountId}</td>
+                      <td className={IncomeCSS.td}>{income.recordId}</td>
+                      <td className={IncomeCSS.td}>{income.amount}</td>
+                      <td className={IncomeCSS.td}>
+                        {income.dot.substring(0, 10)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5">No income data available.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-</div>
-
   );
 };
 

@@ -11,13 +11,18 @@ const useStyles = makeStyles((theme) => ({
   button: {
     textTransform: 'none',
     marginRight: theme.spacing(2),
+    width: '150px',
+     
+    marginBottom: theme.spacing(2), // Add bottom spacing
   },
+
   contentContainer: {
     display: 'flex',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   card: {
-    width: '100%', // Adjusted for mobile view
+    width: '100%',
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -28,8 +33,8 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
     },
     [theme.breakpoints.up('md')]: {
-      width: '60%', // Adjusted for larger screens
-      marginLeft: '350px',
+      width: '80%', // Adjusted for larger screens
+      marginLeft: '120px',
     },
   },
   topic: {
@@ -37,8 +42,14 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
   },
   description: {
+      marginBottom: theme.spacing(2),
+      color: '#555',
+  },
+  topicContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     marginBottom: theme.spacing(2),
-    color: '#555',
   },
 }));
 
@@ -46,6 +57,7 @@ const Tutorials = () => {
   const classes = useStyles();
   const [insurances, setInsurances] = useState([]);
   const [activeSection, setActiveSection] = useState('');
+  const [activeTopic, setActiveTopic] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +84,10 @@ const Tutorials = () => {
 
   const handleInsuranceClick = (topic) => {
     setActiveSection(topic);
+    setActiveTopic('');
+  };
+  const handleTopicClick = (topic) => {
+    setActiveTopic(topic);
   };
 
   return (
@@ -95,25 +111,34 @@ const Tutorials = () => {
           </div>
         </Grid>
         <Grid item xs={12} className={classes.contentContainer}>
-          <div>
-            {insurances.map((insurance, index) => (
-              <div key={index} style={{ display: insurance.topic === activeSection ? 'block' : 'none' }}>
-                {insurance.details.map((detail, detailIndex) => (
-                  <Card className={classes.card} key={detailIndex}>
-                    <CardContent>
-                      <Typography variant="h6" className={classes.topic}>
-                        {detail.topic}
-                      </Typography>
-                      <Typography variant="body1" className={classes.description}>
-                        {detail.description}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ))}
-          </div>
-        </Grid>
+        <div>
+          {insurances.map((insurance, index) => (
+            <div key={index} style={{ display: insurance.topic === activeSection ? 'block' : 'none' }}>
+              {insurance.details.map((detail, detailIndex) => (
+                <div key={detailIndex} className={classes.topicContainer}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    onClick={() => handleTopicClick(detail.topic)}
+                  >
+                    {detail.topic}
+                  </Button>
+                  <div style={{ display: detail.topic === activeTopic ? 'block' : 'none' }}>
+                    <Card className={classes.card}>
+                      <CardContent>
+                        <Typography variant="body1" className={classes.description}>
+                          {detail.description}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </Grid>
       </Grid>
     </>
   );

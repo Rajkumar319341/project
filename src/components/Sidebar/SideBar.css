@@ -1,6 +1,7 @@
 .main-container{
     background: linear-gradient(135deg, rgb(0, 7, 61), rgb(33, 150, 243));
     width: 220px;
+    height: 700px;
 }
 .link_text {
     color: white;

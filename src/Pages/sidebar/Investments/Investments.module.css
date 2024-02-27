@@ -124,6 +124,9 @@ font-size:18px;
 font-weight:bold;
 
 }
+.table_container{
+  width: 700px;
+}
 .td{
 color: #010306;
 text-align: center;

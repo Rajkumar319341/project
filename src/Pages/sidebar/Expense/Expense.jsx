@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import ExpenseCSS from "./Expense.module.css";
-import "jspdf-autotable";
-import jsPDF from "jspdf";
-import * as XLSX from "xlsx";
-import ExcelJS from "exceljs";
+import { jsPDF } from "jspdf";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TablePagination,
+  TextField,
+} from "@material-ui/core";
 
 const Expense = () => {
   const [expenseTitle, setExpenseTitle] = useState("");
@@ -14,68 +22,51 @@ const Expense = () => {
   const [date, setDate] = useState("");
   const [expenseData, setExpenseData] = useState([]);
   const userId = localStorage.getItem("userId");
-  console.log("userID:", userId);
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    console.log("file", file);
+  const [filterTitle, setFilterTitle] = useState("");
+  const [filterBank, setFilterBank] = useState("");
+  const [filterBranch, setFilterBranch] = useState("");
+  const [filterAmount, setFilterAmount] = useState("");
+  const [filterDate, setFilterDate] = useState("");
 
-    const workbook = new ExcelJS.Workbook();
-    const reader = new FileReader();
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-    reader.onload = async (event) => {
-      const data = new Uint8Array(event.target.result);
-      await workbook.xlsx.load(data);
+  const downloadPdf = () => {
+    const doc = new jsPDF();
+    const tableColumn = [
+      "Expense Title",
+      "Bank Name",
+      "Branch",
+      "Amount",
+      "Date",
+    ];
+    const tableRows = [];
 
-      const sheet = workbook.getWorksheet(1); // Assuming the data is in the first sheet
+    const filteredData = expenseData[0]?.accountDetails.filter((expense) => {
+      return (
+        expense.description.toLowerCase().includes(filterTitle.toLowerCase()) &&
+        expense.accountId.toLowerCase().includes(filterBank.toLowerCase()) &&
+        expense.recordId.toLowerCase().includes(filterBranch.toLowerCase()) &&
+        expense.amount.toString().includes(filterAmount) &&
+        (expense.dot
+          ? expense.dot.substring(0, 10).includes(filterDate)
+          : false)
+      );
+    });
 
-      const rows = [];
-      sheet.eachRow((row, rowNumber) => {
-        if (rowNumber !== 1) {
-          // Skip header row
-          rows.push({
-            recordId: row.getCell(1).value.toString(),
-            accountId: row.getCell(2).value.toString(),
-            description: row.getCell(3).value.toString(),
-            amount: row.getCell(4).value.toString(),
-            dot: row.getCell(5).value.substring(0, 10), // Assuming dot is a date string in the format 'yyyy-mm-dd'
-          });
-        }
-      });
-
-      console.log("Parsed data:", rows);
-
-      // Send the parsed data to your API endpoint for storage
-      try {
-        const token = btoa("c4eadmin:admin@1234");
-        const response = await axios.post(
-          "https://money-xg9v.onrender.com/api/v1/expense",
-          {
-            userId: userId,
-            accountDetails: rows,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Basic ${token}`,
-            },
-          }
-        );
-
-        console.log("Response:", response);
-        if (response.status === 200) {
-          console.log("Data imported successfully");
-          // Refresh expense data after successful import
-          fetchExpenseData();
-        } else {
-          console.log("Failed to import data:", response.data.message);
-        }
-      } catch (error) {
-        console.error("API Error:", error);
-      }
-    };
-
-    reader.readAsArrayBuffer(file);
+    filteredData.forEach((expense) => {
+      const expenseData = [
+        expense.description,
+        expense.accountId,
+        expense.recordId,
+        expense.amount,
+        expense.dot ? expense.dot.substring(0, 10) : "", // Check if expense.dot is not null before calling substring
+      ];
+      tableRows.push(expenseData);
+    });
+    doc.autoTable(tableColumn, tableRows, { startY: 20 });
+    doc.save("ExpenseData.pdf");
   };
 
   const handleSave = async (e) => {
@@ -108,7 +99,7 @@ const Expense = () => {
       console.log("Response:", response);
       if (response.status === 201) {
         console.log("Data saved successfully");
-        // Refresh income data after successful save
+        // Refresh expense data after successful save
         fetchExpenseData();
       } else {
         console.log("Failed to save data:", response.data.message);
@@ -131,7 +122,7 @@ const Expense = () => {
         `https://money-xg9v.onrender.com/api/v1/expense/user/${userId}`,
         {
           headers: {
-            Authorization:`Basic ${token}`,
+            Authorization: `Basic ${token}`,
           },
         }
       );
@@ -139,31 +130,11 @@ const Expense = () => {
         setExpenseData(response.data.expense);
         console.log("data retreieved Successfully");
       } else {
-        console.log("Failed to fetch income data");
+        console.log("Failed to fetch expense data");
       }
     } catch (error) {
       console.error("API Error:", error);
     }
-  };
-
-  const exportToPDF = () => {
-    // Create a new instance of jsPDF
-    const doc = new jsPDF();
-
-    // Add table using autotable plugin
-    doc.autoTable({
-      head: [["Income Title", "Bank Name", "Branch", "Amount", "Date"]],
-      body: expenseData.map((expense) => [
-        expense.description,
-        expense.accountId,
-        expense.recordId,
-        expense.amount,
-        expense.dot.substring(0, 10),
-      ]),
-    });
-
-    // Save the PDF
-    doc.save("expenses.pdf");
   };
 
   useEffect(() => {
@@ -172,10 +143,85 @@ const Expense = () => {
     }
   }, [userId]);
 
+  const filteredData = expenseData[0]?.accountDetails.filter((expense) => {
+    return (
+      expense.description.toLowerCase().includes(filterTitle.toLowerCase()) &&
+      expense.accountId.toLowerCase().includes(filterBank.toLowerCase()) &&
+      expense.recordId.toLowerCase().includes(filterBranch.toLowerCase()) &&
+      expense.amount.toString().includes(filterAmount) &&
+      (expense.dot ? expense.dot.substring(0, 10).includes(filterDate) : false)
+    );
+  });
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <div className={ExpenseCSS.container}>
       <form onSubmit={handleSave} className={ExpenseCSS.form_container}>
-        {/* Your form content */}
+        <h2> Your Expense</h2>
+        <div className={ExpenseCSS.form_group_remained1}>
+          <label htmlFor="expenseTitle">Expense Title</label>
+          <input
+            type="text"
+            id="expenseTitle"
+            placeholder="Enter Expense Title"
+            value={expenseTitle}
+            onChange={(e) => setExpenseTitle(e.target.value)}
+          />
+        </div>
+        <div className={ExpenseCSS.form_group}>
+          <label>Select Bank Name</label>
+          <select
+            value={bankName}
+            onChange={(e) => setBankName(e.target.value)}
+          >
+            <option value="">Select</option>
+            <option value="SBI">SBI</option>
+            <option value="HDFC">HDFC</option>
+            <option value="Karnataka">Karnataka</option>
+            <option value="ICICI">ICICI</option>
+            <option value="AXIS">AXIS</option>
+            <option value="CANARA">CANARA</option>
+            <option value="HDFC">HDFC</option>
+          </select>
+        </div>
+        <div className={ExpenseCSS.form_group_remained1}>
+          <label>Enter Your Branch</label>
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+        </div>
+        <div className={ExpenseCSS.form_group_remained}>
+          <label>Amount</label>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+        </div>
+        <div className={ExpenseCSS.form_group_remained}>
+          <label>Date</label>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+        <br />
+        <div className={ExpenseCSS.form_group}>
+          <button type="submit" className={ExpenseCSS.btn_ExpenseSaveChanges}>
+            Save
+          </button>
+        </div>
       </form>
 
       <div className={ExpenseCSS.page_container1}>
@@ -201,46 +247,85 @@ const Expense = () => {
                 tabIndex={"Upload File"}
                 id="file"
                 accept=".xlsm"
-                onChange={handleFileChange}
                 className={ExpenseCSS.import}
               />
-              <button className={ExpenseCSS.pdfbutton} onClick={exportToPDF}>
+              <button className={ExpenseCSS.pdfbutton} onClick={downloadPdf}>
                 Export to PDF
               </button>
             </div>
+            <TableContainer component={Paper}>
+              <Table className={ExpenseCSS.table} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <TextField
+                        value={filterTitle}
+                        onChange={(e) => setFilterTitle(e.target.value)}
+                        label="Expense Title"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        value={filterBank}
+                        onChange={(e) => setFilterBank(e.target.value)}
+                        label="Bank Name"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        value={filterBranch}
+                        onChange={(e) => setFilterBranch(e.target.value)}
+                        label="Branch"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        value={filterAmount}
+                        onChange={(e) => setFilterAmount(e.target.value)}
+                        label="Amount"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        label="Date"
+                        // type="date"
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
 
-            <table className={ExpenseCSS.table}>
-              <thead>
-                <tr>
-                  <th className={ExpenseCSS.tr}>Expense Title</th>
-                  <th className={ExpenseCSS.tr}>Bank Name</th>
-                  <th className={ExpenseCSS.tr}>Branch</th>
-                  <th className={ExpenseCSS.tr}>Amount</th>
-                  <th className={ExpenseCSS.tr}>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {expenseData &&
-                expenseData.length > 0 &&
-                expenseData[0].accountDetails ? (
-                  expenseData[0].accountDetails.map((expense, index) => (
-                    <tr key={index}>
-                      <td className={ExpenseCSS.td}>{expense.description}</td>
-                      <td className={ExpenseCSS.td}>{expense.accountId}</td>
-                      <td className={ExpenseCSS.td}>{expense.recordId}</td>
-                      <td className={ExpenseCSS.td}>{expense.amount}</td>
-                      <td className={ExpenseCSS.td}>
-                        {expense.dot.substring(0, 10)}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5">No expense data available.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                <TableBody>
+                  {(filteredData && rowsPerPage > 0
+                    ? filteredData.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                    : filteredData
+                  )?.map((row, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{row.description}</TableCell>
+                      <TableCell>{row.accountId}</TableCell>
+                      <TableCell>{row.recordId}</TableCell>
+                      <TableCell>{row.amount}</TableCell>
+                      <TableCell>
+                        {row.dot ? row.dot.substring(0, 10) : ""}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={(filteredData && filteredData.length) || 0}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </div>
         </div>
       </div>

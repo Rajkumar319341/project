@@ -1,6 +1,18 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import IncomeCSS from "./Income.module.css";
+import { jsPDF } from "jspdf";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TablePagination,
+  TextField,
+} from "@material-ui/core";
 
 const Income = () => {
   const [incomeTitle, setIncomeTitle] = useState("");
@@ -11,7 +23,50 @@ const Income = () => {
   const [incomeData, setIncomeData] = useState([]);
   const userId = localStorage.getItem("userId");
 
-  console.log("userID:", userId);
+  const [filterTitle, setFilterTitle] = useState("");
+  const [filterBank, setFilterBank] = useState("");
+  const [filterBranch, setFilterBranch] = useState("");
+  const [filterAmount, setFilterAmount] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const downloadPdf = () => {
+    const doc = new jsPDF();
+    const tableColumn = [
+      "Income Title",
+      "Bank Name",
+      "Branch",
+      "Amount",
+      "Date",
+    ];
+    const tableRows = [];
+
+    incomeData[0]?.accountDetails.forEach((income) => {
+      const incomeDataLine = [
+        income.description,
+        income.accountId,
+        income.recordId,
+        income.amount,
+        income.dot.substring(0, 10),
+      ];
+      tableRows.push(incomeDataLine);
+    });
+
+    doc.autoTable(tableColumn, tableRows, { startY: 20 });
+    doc.save("IncomeData.pdf");
+  };
+
+  const filteredData = incomeData[0]?.accountDetails.filter((income) => {
+    return (
+      income.description.toLowerCase().includes(filterTitle.toLowerCase()) &&
+      income.accountId.toLowerCase().includes(filterBank.toLowerCase()) &&
+      income.recordId.toLowerCase().includes(filterBranch.toLowerCase()) &&
+      income.amount.toString().includes(filterAmount) &&
+      income.dot.substring(0, 10).includes(filterDate)
+    );
+  });
+
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -42,7 +97,6 @@ const Income = () => {
       console.log("Response:", response);
       if (response.status === 201) {
         console.log("Data saved successfully");
-        // Refresh income data after successful save
         fetchIncomeData();
       } else {
         console.log("Failed to save data:", response.data.message);
@@ -85,6 +139,15 @@ const Income = () => {
       fetchIncomeData();
     }
   }, [userId]);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   return (
     <div className={IncomeCSS.container}>
@@ -173,41 +236,90 @@ const Income = () => {
                 accept=".xlsm"
                 className={IncomeCSS.import}
               />
-              <button className={IncomeCSS.pdfbutton}>Export to PDF</button>
+              <button className={IncomeCSS.pdfbutton} onClick={downloadPdf}>
+                Export to PDF
+              </button>
             </div>
 
-            <table className={IncomeCSS.table}>
-              <thead>
-                <tr>
-                  <th className={IncomeCSS.tr}>Income Title</th>
-                  <th className={IncomeCSS.tr}>Bank Name</th>
-                  <th className={IncomeCSS.tr}>Branch</th>
-                  <th className={IncomeCSS.tr}>Amount</th>
-                  <th className={IncomeCSS.tr}>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {incomeData &&
-                incomeData.length > 0 &&
-                incomeData[0].accountDetails ? (
-                  incomeData[0].accountDetails.map((income, index) => (
-                    <tr key={index}>
-                      <td className={IncomeCSS.td}>{income.description}</td>
-                      <td className={IncomeCSS.td}>{income.accountId}</td>
-                      <td className={IncomeCSS.td}>{income.recordId}</td>
-                      <td className={IncomeCSS.td}>{income.amount}</td>
-                      <td className={IncomeCSS.td}>
+            <TableContainer component={Paper}>
+              <Table className={IncomeCSS.table} aria-label="income table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell className={IncomeCSS.tr}>
+                      <TextField
+                        label="Income Title"
+                        value={filterTitle}
+                        onChange={(e) => setFilterTitle(e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell className={IncomeCSS.tr}>
+                      <TextField
+                        label="Bank Name"
+                        value={filterBank}
+                        onChange={(e) => setFilterBank(e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell className={IncomeCSS.tr}>
+                      <TextField
+                        label="Branch"
+                        value={filterBranch}
+                        onChange={(e) => setFilterBranch(e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell className={IncomeCSS.tr}>
+                      <TextField
+                        label="Amount"
+                        value={filterAmount}
+                        onChange={(e) => setFilterAmount(e.target.value)}
+                      />
+                    </TableCell>
+                    <TableCell className={IncomeCSS.tr}>
+                      <TextField
+                        label="Date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {(filteredData && rowsPerPage > 0
+                    ? filteredData.slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
+                    : []
+                  ).map((income, index) => (
+                    <TableRow key={index}>
+                      <TableCell className={IncomeCSS.td}>
+                        {income.description}
+                      </TableCell>
+                      <TableCell className={IncomeCSS.td}>
+                        {income.accountId}
+                      </TableCell>
+                      <TableCell className={IncomeCSS.td}>
+                        {income.recordId}
+                      </TableCell>
+                      <TableCell className={IncomeCSS.td}>
+                        {income.amount}
+                      </TableCell>
+                      <TableCell className={IncomeCSS.td}>
                         {income.dot.substring(0, 10)}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5">No income data available.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={(filteredData && filteredData.length) || 0}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
           </div>
         </div>
       </div>

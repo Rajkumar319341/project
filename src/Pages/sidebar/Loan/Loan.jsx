@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
-import './Loan.css'
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination } from "@material-ui/core";
+import './Loan.css';
 
 const LoanPage = () => {
   const [loanType, setLoanType] = useState("");
@@ -14,6 +15,8 @@ const LoanPage = () => {
   const [endDate, setEndDate] = useState("");
   const [pendingAmount, setPendingAmount] = useState("");
   const [loanData, setLoanData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
@@ -87,6 +90,15 @@ const LoanPage = () => {
     setStartDate("");
     setEndDate("");
     setPendingAmount("");
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -182,32 +194,46 @@ const LoanPage = () => {
 
         <div className="table-container4">
           <h2>Loan Table</h2>
-          <table className="table4">
-            <thead>
-              <tr>
-                <th>Loan Type</th>
-                <th>Loan Amount</th>
-                <th>EMI</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Pending Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loanData && loanData.map((loan) => (
-                loan.loanDetails && loan.loanDetails.map((detail) => (
-                  <tr key={detail.recordId}>
-                    <td>{detail.loanType}</td>
-                    <td>{detail.loanAmount}</td>
-                    <td>{detail.emi}</td>
-                    <td>{detail.startDate ? detail.startDate.substring(0, 10) : ""}</td>
-                    <td>{detail.endDate ? detail.endDate.substring(0, 10) : ""}</td>
-                    <td>{detail.pendingAmount}</td>
-                  </tr>
-                ))
-              ))}
-            </tbody>
-          </table>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Loan Type</TableCell>
+                  <TableCell>Loan Amount</TableCell>
+                  <TableCell>EMI</TableCell>
+                  <TableCell>Start Date</TableCell>
+                  <TableCell>End Date</TableCell>
+                  <TableCell>Pending Amount</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(rowsPerPage > 0
+                  ? loanData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  : loanData
+                ).map((loan) =>
+                  loan.loanDetails.map((detail) => (
+                    <TableRow key={detail.recordId}>
+                      <TableCell>{detail.loanType}</TableCell>
+                      <TableCell>{detail.loanAmount}</TableCell>
+                      <TableCell>{detail.emi}</TableCell>
+                      <TableCell>{detail.startDate ? detail.startDate.substring(0, 10) : ""}</TableCell>
+                      <TableCell>{detail.endDate ? detail.endDate.substring(0, 10) : ""}</TableCell>
+                      <TableCell>{detail.pendingAmount}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={loanData.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </div>
       </div>
     </div>

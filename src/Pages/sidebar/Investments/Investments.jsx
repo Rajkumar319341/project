@@ -2,6 +2,18 @@ import React, { useState, useEffect } from "react";
 import InvestmentCSS from "./Investments.module.css";
 import { v4 as uuid } from "uuid";
 import axios from "axios";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TablePagination,
+  TextField,
+} from "@material-ui/core";
+
 const apiUrl = "https://money-xg9v.onrender.com/api/v1/investment";
 
 function Investments() {
@@ -12,27 +24,36 @@ function Investments() {
   const [endDate, setEndDate] = useState("");
   const [curValue, setCurValue] = useState("");
   const [investmentData, setInvestmentData] = useState([]);
+  const [filterInvType, setFilterInvType] = useState("");
+  const [filterInvAmount, setFilterInvAmount] = useState("");
+  const [filterMatAmount, setFilterMatAmount] = useState("");
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
+  const [filterCurValue, setFilterCurValue] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const userId = localStorage.getItem("userId");
 
+  const fetchInvestmentData = async () => {
+    try {
+      const token = btoa("c4eadmin:admin@1234");
+      const response = await axios.get(`${apiUrl}/user/${userId}`, {
+        headers: {
+          Authorization: `Basic ${token}`,
+        },
+      });
+      setInvestmentData(response.data.investment);
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+  };
+  
   useEffect(() => {
-    const fetchInvestmentData = async () => {
-      try {
-        const token = btoa("c4eadmin:admin@1234");
-        const response = await axios.get(`${apiUrl}/user/${userId}`, {
-          headers: {
-            Authorization: `Basic ${token}`,
-          },
-        });
-        setInvestmentData(response.data.investment);
-      } catch (error) {
-        console.error("API Error:", error);
-      }
-    };
-
     if (userId) {
       fetchInvestmentData();
     }
   }, [userId]);
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -63,7 +84,7 @@ function Investments() {
       if (response.status === 201) {
         console.log("Data saved Successfully");
         // Refresh investment data after successful save
-        setInvestmentData();
+        fetchInvestmentData(); // Call fetchInvestmentData to update investmentData state
       } else {
         console.log("Failed to save data:", response.data.message);
       }
@@ -76,6 +97,15 @@ function Investments() {
     setStartDate("");
     setEndDate("");
     setCurValue("");
+  };
+  
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -150,41 +180,54 @@ function Investments() {
 
         <div className={InvestmentCSS.table_container}>
           <h2> Investments Table</h2>
-          <table className={InvestmentCSS.table}>
-            <thead>
-              <tr>
-                <th>Investment Type</th>
-                <th>Invested Amount</th>
-                <th>Maturity Amount</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Current Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {investmentData &&
-                investmentData.length > 0 &&
-                investmentData.map((investment) =>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Investment Type</TableCell>
+                  <TableCell>Invested Amount</TableCell>
+                  <TableCell>Maturity Amount</TableCell>
+                  <TableCell>Start Date</TableCell>
+                  <TableCell>End Date</TableCell>
+                  <TableCell>Current Value</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(rowsPerPage > 0
+                  ? investmentData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  : investmentData
+                ).map((investment) =>
                   investment.details.map((detail, index) => (
-                    <tr key={index}>
-                      <td>{detail.investmentType}</td>
-                      <td>{detail.investedAmount}</td>
-                      <td>{detail.maturityAmount}</td>
-                      <td>
+                    <TableRow key={index}>
+                      <TableCell>{detail.investmentType}</TableCell>
+                      <TableCell>{detail.investedAmount}</TableCell>
+                      <TableCell>{detail.maturityAmount}</TableCell>
+                      <TableCell>
                         {detail.startDate
-                          ? detail.startDate.substring(0, 10)
+                          ? new Date(detail.startDate).toLocaleDateString()
                           : ""}
-                      </td>
-                      <td>
-                        {detail.endDate ? detail.endDate.substring(0, 10) : ""}
-                      </td>
-
-                      <td>{detail.currentValue}</td>
-                    </tr>
+                      </TableCell>
+                      <TableCell>
+                        {detail.endDate
+                          ? new Date(detail.endDate).toLocaleDateString()
+                          : ""}
+                      </TableCell>
+                      <TableCell>{detail.currentValue}</TableCell>
+                    </TableRow>
                   ))
                 )}
-            </tbody>
-          </table>
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={(investmentData && investmentData.length) || 0}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
         </div>
       </div>
     </div>

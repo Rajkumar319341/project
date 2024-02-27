@@ -90,20 +90,20 @@ tr:hover {
 }
 
 .form_group {
-  margin-bottom: 1px;
-  height: 10.5vh;
+  margin-bottom: 10px;
+  height: auto;
   width: 100%;
 }
 
 .form_group_remained {
-  margin-bottom: 1px;
-  height: 10.5vh;
+  margin-bottom: 10px;
+  height:auto;
   width: 92%;
 }
 
 .form_group_remained1 {
-  margin-bottom: 1px;
-  height: 10.5vh;
+  margin-bottom: 10px;
+  height: auto;
   width: 92%;
 }
 
@@ -178,11 +178,6 @@ button[type="submit"]:hover {
   border-radius: 5px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
-
-
-
-
-
 .editIcon {
   color: green;
   padding: 2px;
@@ -242,9 +237,9 @@ th {
 }
 
 .btn_2 {
-  background-color: #fbfeff;
+  
   border-color: #5a35ec;
-  color: #fff;
+  background-color: rgb(57, 12, 255);
 }
 
 .btn_2:hover {
@@ -266,7 +261,7 @@ th {
   text-decoration: none;
   border: 2px solid #007bff;
   border-radius: 5px;
-  color: #007bff;
+  background-color: rgb(57, 12, 255);
   transition: background-color 0.2s, color 0.2s;
 }
 
@@ -288,8 +283,8 @@ th {
 
 .pdfbutton {
   font-size: 13px;
-  width: fit-content;
-  height: fit-content;
+  width:250px;
+  height:42px;
   background-color: rgb(57, 12, 255);
   margin-left: 10px;
   margin-top: 5px;
@@ -329,7 +324,8 @@ th {
     box-shadow: none;
     width: calc(100% - 40px); /* Adjusted width for smaller screens */
   }
-}.tr{
+}
+.tr{
   color:#03000c;
   text-align: center;
   text-decoration-color: #1436e1;

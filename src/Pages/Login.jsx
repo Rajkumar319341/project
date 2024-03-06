@@ -41,7 +41,7 @@ function Login() {
       });
 
       // Redirect to the desired page after successful login
-      navigate('/add-account'); // Change '/add-account' to the desired route
+      navigate('/dashboard'); // Change '/add-account' to the desired route
     } catch (error) {
       console.error('Login failed:', error);
       setInvalidCredentials(true); // Set invalidCredentials to true if login fails

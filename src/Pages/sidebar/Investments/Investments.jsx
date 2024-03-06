@@ -11,7 +11,6 @@ import {
   TableRow,
   Paper,
   TablePagination,
-  TextField,
 } from "@material-ui/core";
 
 const apiUrl = "https://money-xg9v.onrender.com/api/v1/investment";
@@ -24,14 +23,16 @@ function Investments() {
   const [endDate, setEndDate] = useState("");
   const [curValue, setCurValue] = useState("");
   const [investmentData, setInvestmentData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(7);
+
   const [filterInvType, setFilterInvType] = useState("");
   const [filterInvAmount, setFilterInvAmount] = useState("");
   const [filterMatAmount, setFilterMatAmount] = useState("");
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [filterCurValue, setFilterCurValue] = useState("");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+
   const userId = localStorage.getItem("userId");
 
   const fetchInvestmentData = async () => {
@@ -47,13 +48,12 @@ function Investments() {
       console.error("API Error:", error);
     }
   };
-  
+
   useEffect(() => {
     if (userId) {
       fetchInvestmentData();
     }
   }, [userId]);
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,7 +98,7 @@ function Investments() {
     setEndDate("");
     setCurValue("");
   };
-  
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -107,6 +107,12 @@ function Investments() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const flattenedData = investmentData.flatMap(
+    (investment) => investment.details
+  );
+
+  // Update totalRows calculation
+  const totalRows = flattenedData.length;
 
   return (
     <div className={InvestmentCSS.page_container3}>
@@ -149,7 +155,7 @@ function Investments() {
                 <input
                   type="date"
                   id="startDate"
-                  placeholder="Enter Start Date"
+                  placeholder="Start Date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
@@ -179,29 +185,82 @@ function Investments() {
         </div>
 
         <div className={InvestmentCSS.table_container}>
-          <h2> Investments Table</h2>
-          <TableContainer component={Paper}>
+          <h2 style={{borderBottom:"2px solid #007bff",color:"#007bff",paddingBottom:"10px",fontSize:"24px"}}> Investments Table</h2>
+          <TableContainer component={Paper} style={{ width: "700px" }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Investment Type</TableCell>
-                  <TableCell>Invested Amount</TableCell>
-                  <TableCell>Maturity Amount</TableCell>
-                  <TableCell>Start Date</TableCell>
-                  <TableCell>End Date</TableCell>
-                  <TableCell>Current Value</TableCell>
+                  <TableCell style={{ width: "80px" }}>
+                    Investment Type
+                    <input
+                      type="text"
+                      value={filterInvType}
+                      onChange={(e) => setFilterInvType(e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell style={{ width: "80px" }}>
+                    Invested Amt
+                    <input
+                      type="text"
+                      value={filterInvAmount}
+                      onChange={(e) => setFilterInvAmount(e.target.value)}
+                    />
+                  </TableCell>
+                  {/* <TableCell>
+      Maturity Amount
+      <input
+        type="text"
+        value={filterMatAmount}
+        onChange={(e) => setFilterMatAmount(e.target.value)}
+      />
+    </TableCell> */}
+                  <TableCell style={{ width: "80px" }}>
+                    Start Date
+                    <input
+                      // type="date"
+                      value={filterStartDate}
+                      onChange={(e) => setFilterStartDate(e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell style={{ width: "80px" }}>
+                    End Date
+                    <input
+                      // type="date"
+                      value={filterEndDate}
+                      onChange={(e) => setFilterEndDate(e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell style={{ width: "80px" }}>
+                    Current Value
+                    <input
+                      type="text"
+                      value={filterCurValue}
+                      onChange={(e) => setFilterCurValue(e.target.value)}
+                    />
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {(rowsPerPage > 0
-                  ? investmentData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  : investmentData
-                ).map((investment) =>
-                  investment.details.map((detail, index) => (
+                {flattenedData
+                  .filter((detail) => {
+                    return (
+                      detail.investmentType.includes(filterInvType) &&
+                      detail.investedAmount.includes(filterInvAmount) &&
+                      // detail.maturityAmount.includes(filterMatAmount) &&
+                      (filterStartDate === "" ||
+                        new Date(detail.startDate) >=
+                          new Date(filterStartDate)) &&
+                      (filterEndDate === "" ||
+                        new Date(detail.endDate) <= new Date(filterEndDate)) &&
+                      detail.currentValue.includes(filterCurValue)
+                    );
+                  })
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((detail, index) => (
                     <TableRow key={index}>
                       <TableCell>{detail.investmentType}</TableCell>
                       <TableCell>{detail.investedAmount}</TableCell>
-                      <TableCell>{detail.maturityAmount}</TableCell>
+                      {/* <TableCell>{detail.maturityAmount}</TableCell> */}
                       <TableCell>
                         {detail.startDate
                           ? new Date(detail.startDate).toLocaleDateString()
@@ -214,20 +273,19 @@ function Investments() {
                       </TableCell>
                       <TableCell>{detail.currentValue}</TableCell>
                     </TableRow>
-                  ))
-                )}
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>
           <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={(investmentData && investmentData.length) || 0}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
+            rowsPerPageOptions={[7, 10, 25]}
+            component="div"
+            count={flattenedData.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </div>
       </div>
     </div>

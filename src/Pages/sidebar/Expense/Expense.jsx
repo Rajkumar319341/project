@@ -165,7 +165,7 @@ const Expense = () => {
   return (
     <div className={ExpenseCSS.container}>
       <form onSubmit={handleSave} className={ExpenseCSS.form_container}>
-        <h2> Your Expense</h2>
+        <h2 style={{borderBottom:"2px solid #007bff",color:"#007bff",paddingBottom:"10px",fontSize:"24px"}}> Your Expense</h2>
         <div className={ExpenseCSS.form_group_remained1}>
           <label htmlFor="expenseTitle">Expense Title</label>
           <input
@@ -228,7 +228,7 @@ const Expense = () => {
         <div className={ExpenseCSS.container1}>
           <div className={ExpenseCSS.form_container1}>
             <h2 className={ExpenseCSS.h2}>
-              <span> Expense Table</span>
+              <span style={{borderBottom:"2px solid #007bff",color:"#007bff",paddingBottom:"10px",fontSize:"24px"}}> Expense Table</span>
             </h2>
             <div className={ExpenseCSS.tools}>
               <label className={ExpenseCSS.label2} htmlFor="file"></label>

@@ -1,0 +1,67 @@
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  
+  /* Individual card styling */
+  .card {
+    display: flex;
+    flex-direction:column;
+    width:310px;
+    padding: 10px;
+    border-radius: 15px;
+    margin-left:8px;
+    height: 100px;
+    margin-top: 10px;
+    margin-right:8px;
+    width:250px;
+    box-shadow: 0 2px 4px rgba(48, 22, 22, 0.1);
+     text-align: center;
+    background: linear-gradient(135deg, rgb(0, 7, 61), #2196f3);
+  }
+  /* Chart container styling */
+  .chart {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 800px; /* Adjust as needed */
+  }
+  .h3{
+    color:white;
+    font-size: 20px;
+    
+  }
+  .p
+  {
+    color:white;
+    font-size: 20px;
+    margin-top:7px;
+    
+   }
+
+ .cards{
+
+    border-radius: 10px;
+    background-color: white; /* Blue color */
+    color: rgb(10, 10, 10);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+
+  .h33
+{
+    margin-top: 2px;
+}  
+.dashboards{
+padding: 50px;
+align-items: center;
+display: flex;
+flex-wrap: wrap;
+justify-content: space-around; 
+}
+.h31{
+    color:black;
+    margin-left: 50px;
+    }

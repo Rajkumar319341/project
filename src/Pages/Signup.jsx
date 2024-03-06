@@ -65,6 +65,7 @@ function Signup() {
             <label htmlFor="name">Name</label>
             <input
               type="text"
+              style={{width:"290px"}}
               placeholder="Enter Name"
               autoComplete="off"
               name="username"

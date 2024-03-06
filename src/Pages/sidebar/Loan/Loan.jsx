@@ -16,8 +16,16 @@ const LoanPage = () => {
   const [pendingAmount, setPendingAmount] = useState("");
   const [loanData, setLoanData] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(7);
   const userId = localStorage.getItem("userId");
+
+  const [loanTypeFilter, setLoanTypeFilter] = useState("");
+  const [loanAmountFilter, setLoanAmountFilter] = useState("");
+  const [emiFilter, setEmiFilter] = useState("");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
+  const [pendingAmountFilter, setPendingAmountFilter] = useState("");
+
 
   useEffect(() => {
     const fetchLoanData = async () => {
@@ -100,9 +108,22 @@ const LoanPage = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+  const flatLoanData = loanData?.flatMap((loan) => loan.loanDetails) || [];
+  const filteredLoanData = flatLoanData.filter((detail) => {
+    return (
+      detail.loanType?.toLowerCase().includes(loanTypeFilter.toLowerCase()) &&
+      detail.loanAmount?.toString().includes(loanAmountFilter) &&
+      detail.emi?.toString().includes(emiFilter) &&
+      detail.startDate?.toString().includes(startDateFilter) &&
+      detail.endDate?.toString().includes(endDateFilter) &&
+      detail.pendingAmount?.toString().includes(pendingAmountFilter)
+    );
+  });
 
+ 
   return (
     <div className="page-container4">
+    
       <div className="container4">
         <div className="form-container4">
           <h2>Your Loan Details</h2>
@@ -133,6 +154,7 @@ const LoanPage = () => {
                   value={tenure}
                   onChange={(e) => setTenure(e.target.value)}
                 />
+               
                 <label>Enter Start Date</label>
                 <input
                   type="date"
@@ -141,6 +163,10 @@ const LoanPage = () => {
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                 />
+                 <button  type="submit"   style={{
+                      marginLeft: "30px",
+                      width: "70%",
+                    }}>Save</button>
               </div>
               <div className="form-column">
                 <label>Vendor</label>
@@ -184,57 +210,108 @@ const LoanPage = () => {
                   onChange={(e) => setPendingAmount(e.target.value)}
                 />
               </div>
+              
             </div>
-            <button  type="submit"   style={{
-                      marginLeft: "30px",
-                      width: "30%",
-                    }}>Save</button>
+           
           </form>
         </div>
 
         <div className="table-container4">
-          <h2>Loan Table</h2>
+          <h2 style={{borderBottom:"2px solid #007bff",color:"#007bff",paddingBottom:"10px",fontSize:"24px"}}>Loan Table</h2>
           <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Loan Type</TableCell>
-                  <TableCell>Loan Amount</TableCell>
-                  <TableCell>EMI</TableCell>
-                  <TableCell>Start Date</TableCell>
-                  <TableCell>End Date</TableCell>
-                  <TableCell>Pending Amount</TableCell>
+                <TableCell>
+                  Loan Type
+                  <input
+                    type="text"
+                    placeholder="Filter"
+                    value={loanTypeFilter}
+                    onChange={(e) => setLoanTypeFilter(e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  Loan Amount
+                  <input
+                    type="text"
+                    placeholder="Filter"
+                    value={loanAmountFilter}
+                    onChange={(e) => setLoanAmountFilter(e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  EMI
+                  <input
+                    type="text"
+                    placeholder="Filter"
+                    value={emiFilter}
+                    onChange={(e) => setEmiFilter(e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  Start Date
+                  <input
+                    type="text"
+                    placeholder="Filter"
+                    value={startDateFilter}
+                    onChange={(e) => setStartDateFilter(e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  End Date
+                  <input
+                    type="text"
+                    placeholder="Filter"
+                    value={endDateFilter}
+                    onChange={(e) => setEndDateFilter(e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  Pending Amount
+                  <input
+                    type="text"
+                    placeholder="Filter"
+                    value={pendingAmountFilter}
+                    onChange={(e) => setPendingAmountFilter(e.target.value)}
+                  />
+                </TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {(rowsPerPage > 0
-                  ? loanData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  : loanData
-                ).map((loan) =>
-                  loan.loanDetails.map((detail) => (
-                    <TableRow key={detail.recordId}>
-                      <TableCell>{detail.loanType}</TableCell>
-                      <TableCell>{detail.loanAmount}</TableCell>
-                      <TableCell>{detail.emi}</TableCell>
-                      <TableCell>{detail.startDate ? detail.startDate.substring(0, 10) : ""}</TableCell>
-                      <TableCell>{detail.endDate ? detail.endDate.substring(0, 10) : ""}</TableCell>
-                      <TableCell>{detail.pendingAmount}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={loanData.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </div>
+              
+    <TableBody>
+  
+    {filteredLoanData.length > 0 &&
+    (rowsPerPage > 0
+      ? filteredLoanData.slice(
+          page * rowsPerPage,
+          page * rowsPerPage + rowsPerPage
+        )
+      : filteredLoanData
+    ).map((detail) => (
+      <TableRow key={detail.recordId}>
+        <TableCell>{detail.loanType}</TableCell>
+        <TableCell>{detail.loanAmount}</TableCell>
+        <TableCell>{detail.emi}</TableCell>
+        <TableCell>{detail.startDate.substring(0,10)}</TableCell>
+        <TableCell>{detail.endDate.substring(0,10)}</TableCell>
+        <TableCell>{detail.pendingAmount}</TableCell>
+      </TableRow>
+    ))}
+    </TableBody>
+     </Table>
+    </TableContainer>
+    <TablePagination
+    
+      rowsPerPageOptions={[7, 8, 25]}
+      component="div"
+      count={flatLoanData.length}
+      rowsPerPage={rowsPerPage}
+      page={page}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+    />
+  </div>
       </div>
     </div>
   );

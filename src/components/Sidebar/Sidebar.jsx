@@ -14,6 +14,9 @@ import LiveTvIcon from "@mui/icons-material/LiveTv";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import SidebarMenu from "./SidebarMenu";
+import { RiLogoutBoxRFill } from "react-icons/ri";
+
+import { CgProfile } from "react-icons/cg";
 import './SideBar.css';
 
 const routes = [
@@ -79,7 +82,16 @@ const routes = [
     path: "/Records",
     name: "Records",
     icon: <BsBookFill />,
-  },
+  },{
+    path:"/profile",
+    name:"Profile",
+    icon:<CgProfile />,
+  },{
+    path:'/logout',
+    name:"Log Out",
+    icon:<RiLogoutBoxRFill />,
+
+  }
 ];
 
 const SideBar = ({ children }) => {

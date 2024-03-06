@@ -13,6 +13,7 @@ import {
   TablePagination,
   TextField,
 } from "@material-ui/core";
+import * as XLSX from "xlsx";
 
 const Income = () => {
   const [incomeTitle, setIncomeTitle] = useState("");
@@ -57,12 +58,54 @@ const Income = () => {
     doc.save("IncomeData.pdf");
   };
 
+  const readExcelFile = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        // Assuming the data is structured in the Excel file as follows:
+        // Column A: Income Title
+        // Column B: Bank Name
+        // Column C: Branch
+        // Column D: Amount
+        // Column E: Date
+
+        const parsedData = jsonData.map((row) => {
+          return [
+            row[0] || "", // Income Title
+            row[1] || "", // Bank Name
+            row[2] || "", // Branch
+            row[3] || "", // Amount
+            row[4] ? formatDate(row[4]) : "", // Date
+          ];
+        });
+
+        resolve(parsedData);
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const formatDate = (dateValue) => {
+    const date = new Date(dateValue);
+    return isNaN(date.getTime()) ? "" : date.toISOString();
+  };
+
   const filteredData = incomeData[0]?.accountDetails.filter((income) => {
     return (
       income.description.toLowerCase().includes(filterTitle.toLowerCase()) &&
       income.accountId.toLowerCase().includes(filterBank.toLowerCase()) &&
       income.recordId.toLowerCase().includes(filterBranch.toLowerCase()) &&
       income.amount.toString().includes(filterAmount) &&
+      income.dot &&
       income.dot.substring(0, 10).includes(filterDate)
     );
   });
@@ -89,7 +132,7 @@ const Income = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Basic ${token}`,
+            Authorization:` Basic ${token}`,
           },
         }
       );
@@ -116,7 +159,7 @@ const Income = () => {
     try {
       const token = btoa("c4eadmin:admin@1234");
       const response = await axios.get(
-        `https://money-xg9v.onrender.com/api/v1/income/user/${userId}`,
+       ` https://money-xg9v.onrender.com/api/v1/income/user/${userId}`,
         {
           headers: {
             Authorization: `Basic ${token}`,
@@ -125,7 +168,7 @@ const Income = () => {
       );
       if (response.status === 200) {
         setIncomeData(response.data.income);
-        console.log("data retreieved Successfully");
+        console.log("data retrieved Successfully");
       } else {
         console.log("Failed to fetch income data");
       }
@@ -147,6 +190,57 @@ const Income = () => {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleImportExcel = async (e) => {
+    e.preventDefault();
+    const file = e.target.files[0];
+
+    try {
+      const data = await readExcelFile(file); // Assuming readExcelFile is a function to parse Excel file
+
+      // Process the data and store it
+      data.forEach(async (row) => {
+        const [incomeTitle, bankName, branch, amount, date] = row;
+
+        try {
+          const token = btoa("c4eadmin:admin@1234");
+          const response = await axios.post(
+            "https://money-xg9v.onrender.com/api/v1/income",
+            {
+              userId: userId,
+              accountDetails: [
+                {
+                  recordId: branch,
+                  accountId: bankName,
+                  description: incomeTitle,
+                  amount: amount.toString(),
+                  dot: date,
+                },
+              ],
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Basic ${token}`,
+              },
+            }
+          );
+
+          console.log("Response:", response);
+          if (response.status === 201) {
+            console.log("Data saved successfully");
+            fetchIncomeData();
+          } else {
+            console.log("Failed to save data:", response.data.message);
+          }
+        } catch (error) {
+          console.error("API Error:", error);
+        }
+      });
+    } catch (error) {
+      console.error("Error importing Excel file:", error);
+    }
   };
 
   return (
@@ -235,6 +329,7 @@ const Income = () => {
                 id="file"
                 accept=".xlsm"
                 className={IncomeCSS.import}
+                onChange={handleImportExcel}
               />
               <button className={IncomeCSS.pdfbutton} onClick={downloadPdf}>
                 Export to PDF

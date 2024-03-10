@@ -22,8 +22,9 @@ import "./App.css";
 import Records from "./Pages/sidebar/Records/Records";
 import Expense from "./Pages/sidebar/Expense/Expense";
 import Dashboard from "./Pages/Dashboard";
-import Profile from "./Pages/sidebar/Profile";
+// import Profile from "./Pages/sidebar/Profile";
 import LogOut from "./Pages/LogOut";
+import ChatBot from "./Pages/sidebar/ChatBot";
 
 function Content() {
   const location = useLocation();
@@ -55,8 +56,9 @@ function Content() {
           <Route path="/tutorials" element={<Tutorials />} />
           <Route path="/records" element={<Records />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile/>}/>
+          {/* <Route path="/profile" element={<Profile/>}/> */}
           <Route path="/logout" element={<LogOut/>}/>
+          <Route path="/chatbot" element={<ChatBot/>}/>
           
         </Routes>
       </div>

@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { FaBars, FaHome, FaLock, FaMoneyBill, FaUser } from "react-icons/fa";
@@ -9,15 +8,12 @@ import { BiCog } from "react-icons/bi";
 import { BsBookFill } from "react-icons/bs";
 import { BsFillBookmarksFill } from "react-icons/bs";
 import { AiTwotoneFileExclamation } from "react-icons/ai";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import SidebarMenu from "./SidebarMenu";
-import { RiLogoutBoxRFill } from "react-icons/ri";
-
-import { CgProfile } from "react-icons/cg";
-import './SideBar.css';
+import "./SideBar.css";
 
 const routes = [
   {
@@ -55,24 +51,24 @@ const routes = [
     name: "Loans",
     icon: <BsFillBookmarksFill />,
   },
-//   {
-//     path: "/settings",
-//     name: "Settings",
-//     icon: <BiCog />,
-//     exact: true,
-//     subRoutes: [
-//       {
-//         path: "/settings/profile",
-//         name: "ProfilePage",
-//         icon: <FaUser />,
-//       },
-//       {
-//         path: "/settings/billing",
-//         name: "Toggle",
-//         icon: <FaMoneyBill />,
-//       },
-//     ],
-//   },
+  //   {
+  //     path: "/settings",
+  //     name: "Settings",
+  //     icon: <BiCog />,
+  //     exact: true,
+  //     subRoutes: [
+  //       {
+  //         path: "/settings/profile",
+  //         name: "ProfilePage",
+  //         icon: <FaUser />,
+  //       },
+  //       {
+  //         path: "/settings/billing",
+  //         name: "Toggle",
+  //         icon: <FaMoneyBill />,
+  //       },
+  //     ],
+  //   },
   {
     path: "/tutorials",
     name: "Tutorials",
@@ -82,16 +78,12 @@ const routes = [
     path: "/Records",
     name: "Records",
     icon: <BsBookFill />,
-  },{
-    path:"/profile",
-    name:"Profile",
-    icon:<CgProfile />,
-  },{
-    path:'/logout',
-    name:"Log Out",
-    icon:<RiLogoutBoxRFill />,
-
-  }
+  },
+  {
+    path: "/chatbot",
+    name: "ChatBot",
+    icon: <LiveTvIcon fontSize="small" />,
+  },
 ];
 
 const SideBar = ({ children }) => {
@@ -169,7 +161,7 @@ const SideBar = ({ children }) => {
               )}
             </AnimatePresence>
           </div>
-          
+
           <section className="routes">
             {routes.map((route, index) => {
               if (route.subRoutes) {

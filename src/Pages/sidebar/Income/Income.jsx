@@ -132,7 +132,7 @@ const Income = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization:` Basic ${token}`,
+            Authorization: `Basic ${token}`,
           },
         }
       );

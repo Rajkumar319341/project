@@ -27,20 +27,16 @@ function Login() {
       const response = await axios.post('https://money-xg9v.onrender.com/api/v1/login', formData);
       console.log('Login successful:', response.data);
 
-      // Extract the user ID from the response data
       const userId = response.data.user._id;
 
-      // Store the user ID in local storage
       localStorage.setItem('userId', userId);
       console.log("userId",userId)
 
-      // Reset the form fields after successful login
       setFormData({
         email: '',
         password: ''
       });
 
-      // Redirect to the desired page after successful login
       navigate('/dashboard'); // Change '/add-account' to the desired route
     } catch (error) {
       console.error('Login failed:', error);
@@ -51,7 +47,6 @@ function Login() {
   return (
     <div className="login-container">
       <AnimatePresence>
-        {/* Display error message if login fails */}
         {invalidCredentials && (
           <motion.div
             className="error-card"

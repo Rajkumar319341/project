@@ -32,7 +32,7 @@ function Landingpage() {
                 How it works
               </Button>
             </Link>
-            <Button color="inherit">Find savings</Button>
+            {/* <Button color="inherit">Find savings</Button> */}
             <Link to='/contact-us'style={{ textDecoration: "none" }}>
             <Button color="inherit" style={{ color: "white" }}>Contact US</Button>
             </Link>
